@@ -57,20 +57,19 @@
         "php": "^8.1|^8.2",
         "tomatophp/console-helpers": "^1.1",
         "filament/filament": "^3.2",
-        "tomatophp/filament-translations": "^2.0",
-        "openai-php/laravel": "^0.10.2"
+        "tomatophp/filament-translations": "^2.0"
     },
     "require-dev": {
-       "laravel/pint": "^1.18",
-       "livewire/livewire": "^2.10|^3.0",
-       "nunomaduro/larastan": "^2.9",
-       "orchestra/testbench": "^9.5",
-       "pestphp/pest": "^2.36",
-       "pestphp/pest-plugin-laravel": "^2.4",
-       "pestphp/pest-plugin-livewire": "^2.1",
-       "phpstan/extension-installer": "^1.4",
-       "phpstan/phpstan-deprecation-rules": "^1.2",
-       "phpstan/phpstan-phpunit": "^1.4"
+        "laravel/pint": "^1.18",
+        "livewire/livewire": "^2.10|^3.0",
+        "nunomaduro/larastan": "^2.9",
+        "orchestra/testbench": "^9.5",
+        "pestphp/pest": "^2.36",
+        "pestphp/pest-plugin-laravel": "^2.4",
+        "pestphp/pest-plugin-livewire": "^2.1",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^1.2",
+        "phpstan/phpstan-phpunit": "^1.4"
     },
     "version": "v1.0.0"
 }
