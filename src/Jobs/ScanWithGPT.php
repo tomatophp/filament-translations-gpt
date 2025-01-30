@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use OpenAI\Laravel\Facades\OpenAI;
+use Illuminate\Support\Facades\Http;
 use TomatoPHP\FilamentTranslations\Models\Translation;
 
 class ScanWithGPT implements ShouldQueue
@@ -33,15 +33,21 @@ class ScanWithGPT implements ShouldQueue
         $getAllTranslations = Translation::all();
         $chunks = array_chunk($getAllTranslations->toArray(), 50);
 
+        $baseUrl = config('filament-translations-gpt.openai_client.base_url', 'https://api.openai.com/v1');
+        $apiKey = config('filament-translations-gpt.openai_client.api_key') ?? getenv('OPENAI_API_KEY');
+        $model = config('filament-translations-gpt.openai_client.model', 'gpt-3.5-turbo');
+
         foreach ($chunks as $chunk) {
             $makeJsonArray = [];
             foreach ($chunk as $translation) {
                 $makeJsonArray[$translation['key']] = $translation['text']['en'] ?? $translation['key'];
             }
-
             $json = json_encode($makeJsonArray);
-            $result = OpenAI::chat()->create([
-                'model' => 'gpt-3.5-turbo',
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])->baseUrl($baseUrl)->post('/chat/completions', [
+                'model' => $model,
                 'messages' => [
                     [
                         'role' => 'system',
@@ -60,8 +66,29 @@ class ScanWithGPT implements ShouldQueue
                 'n' => 1,
             ]);
 
-            if ($result->choices && count($result->choices) > 0 && $result->choices[0]->message) {
-                $translationArray = json_decode($result->choices[0]->message->content) ?? [];
+            if (!$response->successful()) {
+                Log::error('OpenAI API request failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                throw new \Exception('Failed to get translation from OpenAI: ' . $response->body());
+            }
+
+            $result = json_decode($response->body(), true);
+
+            if (!isset($result['choices'][0]['message']['content'])) {
+                Log::error('OpenAI API request failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                Notification::make()
+                    ->title(trans('filament-translations::translation.gpt_scan_notification_error'))
+                    ->danger()
+                    ->sendToDatabase($user);
+            }
+
+            if ($result['choices'] && count($result['choices']) > 0 && $result['choices'][0]['message']) {
+                $translationArray = json_decode($result['choices'][0]['message']['content']) ?? [];
             }
 
             $getLocal = config('filament-translations.locals');
