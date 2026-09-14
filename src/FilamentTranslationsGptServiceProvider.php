@@ -3,6 +3,7 @@
 namespace TomatoPHP\FilamentTranslationsGpt;
 
 use Illuminate\Support\ServiceProvider;
+use TomatoPHP\FilamentTranslationsGpt\Console\FilamentTranslationsGptInstall;
 
 class FilamentTranslationsGptServiceProvider extends ServiceProvider
 {
@@ -10,7 +11,7 @@ class FilamentTranslationsGptServiceProvider extends ServiceProvider
     {
         // Register generate command
         $this->commands([
-            \TomatoPHP\FilamentTranslationsGpt\Console\FilamentTranslationsGptInstall::class,
+            FilamentTranslationsGptInstall::class,
         ]);
 
         // Register Config file

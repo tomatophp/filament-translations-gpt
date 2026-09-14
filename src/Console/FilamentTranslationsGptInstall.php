@@ -3,12 +3,9 @@
 namespace TomatoPHP\FilamentTranslationsGpt\Console;
 
 use Illuminate\Console\Command;
-use TomatoPHP\ConsoleHelpers\Traits\RunCommand;
 
 class FilamentTranslationsGptInstall extends Command
 {
-    use RunCommand;
-
     /**
      * The name and signature of the console command.
      *
@@ -23,21 +20,16 @@ class FilamentTranslationsGptInstall extends Command
      */
     protected $description = 'install package and publish assets';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): int
     {
-        $this->info('Publish Vendor Assets');
-        $this->artisanCommand(['migrate']);
-        $this->artisanCommand(['optimize:clear']);
+        $this->info('Running migrations');
+        $this->call('migrate', ['--force' => true]);
+        $this->call('optimize:clear');
         $this->info('Filament translations gpt installed successfully.');
+
+        return self::SUCCESS;
     }
 }

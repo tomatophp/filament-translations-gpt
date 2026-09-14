@@ -5,6 +5,7 @@ namespace TomatoPHP\FilamentTranslationsGpt\Tests;
 use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
 use BladeUI\Icons\BladeIconsServiceProvider;
 use Filament\Actions\ActionsServiceProvider;
+use Filament\Facades\Filament;
 use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
 use Filament\Infolists\InfolistsServiceProvider;
@@ -20,6 +21,7 @@ use Orchestra\Testbench\Attributes\WithEnv;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
+use TomatoPHP\FilamentTranslationComponent\FilamentTranslationComponentServiceProvider;
 use TomatoPHP\FilamentTranslations\FilamentTranslationsServiceProvider;
 use TomatoPHP\FilamentTranslationsGpt\FilamentTranslationsGptServiceProvider;
 use TomatoPHP\FilamentTranslationsGpt\Tests\Models\User;
@@ -35,7 +37,13 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->panel = app(Panel::class);
+
+        $this->panel = Filament::getPanel('admin');
+
+        // Livewire tests do not pass through the panel middleware, so boot the plugins like a request does.
+        foreach ($this->panel->getPlugins() as $plugin) {
+            $plugin->boot($this->panel);
+        }
     }
 
     protected function getPackageProviders($app): array
@@ -54,6 +62,7 @@ abstract class TestCase extends BaseTestCase
             SupportServiceProvider::class,
             TablesServiceProvider::class,
             WidgetsServiceProvider::class,
+            FilamentTranslationComponentServiceProvider::class,
             FilamentTranslationsServiceProvider::class,
             FilamentTranslationsGptServiceProvider::class,
             AdminPanelProvider::class,
@@ -72,21 +81,13 @@ abstract class TestCase extends BaseTestCase
     public function getEnvironmentSetUp($app): void
     {
         $app['config']->set('database.default', 'testing');
-        $app['config']->set('database.connections.testing', [
-            'driver' => 'sqlite',
-            'database' => ':memory:',
-            'prefix' => '',
-        ]);
-
-        $app['config']->set('auth.guards.testing.driver', 'session');
-        $app['config']->set('auth.guards.testing.provider', 'testing');
-        $app['config']->set('auth.providers.testing.driver', 'eloquent');
-        $app['config']->set('auth.providers.testing.model', User::class);
+        $app['config']->set('auth.providers.users.model', User::class);
 
         $app['config']->set('filament-translations.use_queue_on_scan', false);
+        $app['config']->set('filament-translations-gpt.openai_client.api_key', 'test-key');
 
         $app['config']->set('filament-translations.paths', [
-            __DIR__ . '/../..',
+            __DIR__ . '/../../src',
         ]);
 
         $app['config']->set('view.paths', [

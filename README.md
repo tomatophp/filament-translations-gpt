@@ -11,6 +11,13 @@
 
 Translations Manager extension to use ChatGPT openAI to auto translate your __(), trans() fn
 
+## Version Compatibility
+
+| Plugin | Filament | Laravel | PHP |
+|--------|----------|---------|-----|
+| 1.x | 3.x | 10.x / 11.x | 8.1+ |
+| 4.x ([`v4` branch](https://github.com/tomatophp/filament-translations-gpt/tree/v4)) | 4.x | 11.x / 12.x | 8.2+ |
+| 5.x | 5.x | 12.x / 13.x | 8.2+ |
 
 ## Screenshots
 
@@ -43,6 +50,16 @@ now you need to add the following to your `.env` file:
 ```bash
 OPENAI_API_KEY=
 OPENAI_ORGANIZATION=
+# optional
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_BASE_URL=https://api.openai.com/v1
+```
+
+Any OpenAI compatible chat completions API works, for example Groq:
+
+```bash
+OPENAI_BASE_URL=https://api.groq.com/openai/v1
+OPENAI_MODEL=llama-3.1-8b-instant
 ```
 
 now you need to clear you cache
@@ -50,6 +67,14 @@ now you need to clear you cache
 ```bash
 php artisan config:clear
 ```
+
+Click the GPT button on the translations page and pick a language. A queued job sends the English text of your translations to the API in chunks
+(`chunk_size` in the config, 50 by default), saves the answers and notifies you when it is done. Run a queue worker (`php artisan queue:work`) for the job to run.
+Words prefixed with `:` are kept as placeholders.
+
+Without `OPENAI_API_KEY` nothing is sent: the job only notifies you that the key is missing. If the API answers with an error, you are notified and the job fails.
+
+The action follows the translation policy of the Translation Manager: it needs the `create` ability.
 
 ## Publish Assets
 
