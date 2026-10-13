@@ -2,6 +2,12 @@
     "name": "tomatophp/filament-translations-gpt",
     "type": "library",
     "description": "Translations Manager extension to use ChatGPT openAI to auto translate your __(), trans() fn",
+    "homepage": "https://tomatophp.com/en/plugins/filament-translations-gpt",
+    "support": {
+        "issues": "https://github.com/tomatophp/filament-translations-gpt/issues",
+        "source": "https://github.com/tomatophp/filament-translations-gpt",
+        "docs": "https://tomatophp.com/en/plugins/filament-translations-gpt"
+    },
     "keywords": [
         "php",
         "laravel",
